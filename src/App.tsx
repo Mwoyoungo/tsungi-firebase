@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppLayout } from './components/AppLayout';
 import { SplashScreen } from './components/SplashScreen';
@@ -142,14 +143,15 @@ const App = () => {
   };
 
   return (
-    <AuthProvider>
-      {showSplash ? (
-        <SplashScreen onComplete={handleSplashComplete} />
-      ) : (
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/auth" element={<Auth />} />
+    <ThemeProvider defaultTheme="dark" storageKey="tsungi-ai-theme">
+      <AuthProvider>
+        {showSplash ? (
+          <SplashScreen onComplete={handleSplashComplete} />
+        ) : (
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/auth" element={<Auth />} />
 
             {/* Protected routes */}
             <Route path="/" element={
@@ -204,10 +206,11 @@ const App = () => {
 
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      )}
-    </AuthProvider>
+            </Routes>
+          </BrowserRouter>
+        )}
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

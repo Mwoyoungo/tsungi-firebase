@@ -80,6 +80,50 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. **Fork or clone this repository**
+
+2. **Set up Firebase project**:
+   - Create a Firebase project at https://console.firebase.google.com
+   - Enable Authentication (Email/Password)
+   - Enable Storage
+   - Copy your Firebase configuration
+
+3. **Deploy to Vercel**:
+   - Connect your GitHub repository to Vercel
+   - Add environment variables in Vercel dashboard:
+     ```
+     VITE_FIREBASE_API_KEY=your-api-key
+     VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+     VITE_FIREBASE_PROJECT_ID=your-project-id
+     VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+     VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+     VITE_FIREBASE_APP_ID=your-app-id
+     VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+     ```
+   - Deploy automatically with Vercel
+
+4. **Configure Firebase Security Rules**:
+   ```javascript
+   // Storage Rules
+   rules_version = '2';
+   service firebase.storage {
+     match /b/{bucket}/o {
+       match /{allPaths=**} {
+         allow read: if request.auth != null;
+         allow write: if request.auth != null;
+       }
+     }
+   }
+   ```
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Mwoyoungo/tsungi-firebase)
+
 ## 🎮 Keyboard Shortcuts
 
 - **Spacebar**: Play/Pause audio

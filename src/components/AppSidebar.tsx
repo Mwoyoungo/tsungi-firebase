@@ -1,10 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-interface SidebarProps {
-  className?: string;
-}
+import { useTheme } from '../contexts/ThemeContext';
 
 const sidebarItems = [
   {
@@ -164,7 +161,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ className = '' }: AppSidebarProps) {
   const location = useLocation();
-  const [isDarkMode, setIsDarkMode] = React.useState(true);
+  const { theme, setTheme } = useTheme();
 
   const sidebarClass = `
     flex flex-col bg-card border-r border shadow-card
@@ -189,11 +186,11 @@ export function AppSidebar({ className = '' }: AppSidebarProps) {
           </div>
         </div>
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           className="p-2 rounded-lg hover:bg-muted transition-all"
-          title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
         >
-          {getIcon(isDarkMode ? 'sun' : 'moon')}
+          {getIcon(theme === 'light' ? 'moon' : 'sun')}
         </button>
       </div>
 
