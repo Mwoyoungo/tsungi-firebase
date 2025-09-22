@@ -487,14 +487,35 @@ const AudioLearning = () => {
               </button>
               <button
                 className="btn btn-primary btn-lg rounded-full"
-                style={{ width: '48px', height: '48px' }}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  position: 'relative'
+                }}
                 onClick={handlePlayPause}
               >
-                {isPlaying ? (
-                  <span style={{ fontSize: '20px' }}>⏸️</span>
-                ) : (
-                  <span style={{ fontSize: '20px' }}>▶️</span>
-                )}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {isPlaying ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b46c1" stroke="none">
+                      <rect x="6" y="4" width="4" height="16"/>
+                      <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b46c1" stroke="none">
+                      <polygon points="8,5 19,12 8,19"/>
+                    </svg>
+                  )}
+                </div>
               </button>
               <button
                 className="btn btn-outline btn-sm rounded-full"
@@ -608,12 +629,20 @@ const AudioLearning = () => {
                       }}
                     >
                       <div
-                        className="bg-muted rounded-md md:rounded-lg flex items-center justify-center relative"
-                        style={{ width: '32px', height: '32px', minWidth: '32px' }}
+                        className="rounded-md md:rounded-lg flex items-center justify-center relative"
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          minWidth: '32px',
+                          background: 'var(--muted)',
+                          boxShadow: 'var(--shadow-neumorph-inset)',
+                          border: '1px solid var(--border)'
+                        }}
                       >
                         {fileProgress >= 100 ? (
-                          <svg className="icon-sm text-progress" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20,6 9,17 4,12"/>
+                          <svg className="icon-sm" viewBox="0 0 24 24" fill="var(--progress)" stroke="none" style={{ color: 'var(--progress)' }}>
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="16,10 12,14 8,12" fill="none" stroke="white" strokeWidth="2"/>
                           </svg>
                         ) : (
                           <span className="text-xs font-bold text-primary">{file.trackNumber}</span>
