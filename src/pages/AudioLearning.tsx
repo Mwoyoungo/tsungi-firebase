@@ -491,14 +491,9 @@ const AudioLearning = () => {
                 onClick={handlePlayPause}
               >
                 {isPlaying ? (
-                  <svg className="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="6" y="4" width="4" height="16"/>
-                    <rect x="14" y="4" width="4" height="16"/>
-                  </svg>
+                  <span style={{ fontSize: '20px' }}>⏸️</span>
                 ) : (
-                  <svg className="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polygon points="5,3 19,12 5,21"/>
-                  </svg>
+                  <span style={{ fontSize: '20px' }}>▶️</span>
                 )}
               </button>
               <button
@@ -568,6 +563,7 @@ const AudioLearning = () => {
             <div className="card-header pb-3 md:pb-6">
               <button
                 className="w-full text-left"
+                style={{ background: 'transparent', border: 'none', color: 'inherit' }}
                 onClick={() => toggleDiskExpansion(diskName)}
               >
                 <div className="flex items-center justify-between">
@@ -612,7 +608,7 @@ const AudioLearning = () => {
                       }}
                     >
                       <div
-                        className="bg-secondary rounded-md md:rounded-lg flex items-center justify-center relative"
+                        className="bg-muted rounded-md md:rounded-lg flex items-center justify-center relative"
                         style={{ width: '32px', height: '32px', minWidth: '32px' }}
                       >
                         {fileProgress >= 100 ? (

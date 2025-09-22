@@ -17,10 +17,11 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({
   estimatedDate = "Soon"
 }) => {
   const mainCardStyle = {
-    background: 'linear-gradient(145deg, hsl(260, 20%, 12%), hsl(260, 15%, 16%))',
-    boxShadow: '22px 22px 44px hsl(260, 20%, 8%), -22px -22px 44px hsl(260, 20%, 18%)',
+    background: 'var(--card)',
+    boxShadow: 'var(--shadow-card)',
     borderRadius: '24px',
-    padding: '32px'
+    padding: '32px',
+    border: '1px solid var(--border)'
   };
 
   const iconContainerStyle = {
@@ -31,8 +32,8 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(145deg, hsl(260, 20%, 12%), hsl(260, 15%, 16%))',
-    boxShadow: '22px 22px 44px hsl(260, 20%, 8%), -22px -22px 44px hsl(260, 20%, 18%)'
+    background: 'var(--muted)',
+    boxShadow: 'var(--shadow-neumorph-inset)'
   };
 
   const constructionIconStyle = {
@@ -43,22 +44,23 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(145deg, hsl(24, 95%, 53%), hsl(20, 91%, 48%))',
-    boxShadow: '8px 8px 16px hsl(260, 20%, 8%), -8px -8px 16px hsl(260, 20%, 18%)'
+    background: 'var(--warning)',
+    boxShadow: 'var(--shadow-neumorph-outset)'
   };
 
   const featureCardStyle = {
     padding: '16px',
     borderRadius: '16px',
-    background: 'linear-gradient(145deg, hsl(260, 15%, 16%), hsl(260, 20%, 12%))',
-    boxShadow: '8px 8px 16px hsl(260, 20%, 8%), -8px -8px 16px hsl(260, 20%, 18%)'
+    background: 'var(--muted)',
+    boxShadow: 'var(--shadow-neumorph-inset)',
+    border: '1px solid var(--border)'
   };
 
   const buttonStyle = {
     padding: '12px 32px',
     borderRadius: '16px',
     background: 'var(--gradient-primary)',
-    boxShadow: '12px 12px 24px hsl(260, 20%, 8%), -12px -12px 24px hsl(260, 20%, 18%)',
+    boxShadow: 'var(--shadow-neumorph-outset)',
     border: 'none',
     color: 'var(--primary-foreground)',
     fontWeight: '600',
