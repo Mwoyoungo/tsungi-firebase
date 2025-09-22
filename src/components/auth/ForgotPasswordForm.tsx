@@ -62,13 +62,18 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBack }
             <span>Password reset email sent successfully!</span>
           </div>
 
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-3">
             <p className="text-sm text-muted-foreground">
-              Check your email inbox and follow the instructions to reset your password.
+              We've sent a password reset link to <strong>{email}</strong>. Check your email inbox and follow the instructions to reset your password.
             </p>
-            <p className="text-xs text-muted-foreground">
-              Don't see the email? Check your spam folder.
-            </p>
+            <div className="bg-muted rounded-lg p-3">
+              <p className="text-xs text-muted-foreground font-medium">
+                💡 Can't find the email? Check your spam/junk folder!
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                The email may take a few minutes to arrive.
+              </p>
+            </div>
           </div>
 
           <button

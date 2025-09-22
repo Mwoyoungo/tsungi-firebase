@@ -207,16 +207,27 @@ export function AppSidebar({ className = '' }: AppSidebarProps) {
             }
           `.trim();
 
+          const linkStyle = {
+            color: isActive ? 'var(--primary-foreground)' : 'var(--foreground)',
+            textDecoration: 'none'
+          };
+
           return (
             <Link
               key={item.href}
               to={item.href}
               className={linkClass}
+              style={linkStyle}
             >
               {getIcon(item.icon)}
               <div className="flex-1">
                 <div className="font-medium">{item.title}</div>
-                <div className={`text-xs opacity-70 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                <div
+                  className={`text-xs opacity-70 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                  style={{
+                    color: isActive ? 'var(--primary-foreground)' : 'var(--muted-foreground)'
+                  }}
+                >
                   {item.description}
                 </div>
               </div>
