@@ -134,27 +134,47 @@ const AcronymGenerator = () => {
       });
 
       const data = await response.json();
+      console.log('API Response:', data);
 
       let acronymData;
+
+      // Try to parse the response
       if (typeof data.text === 'string') {
         let cleanText = data.text;
 
+        // Remove markdown code blocks if present
         if (cleanText.includes('```json')) {
           cleanText = cleanText.replace(/```json\s*/g, '').replace(/\s*```/g, '');
+        } else if (cleanText.includes('```')) {
+          cleanText = cleanText.replace(/```\s*/g, '').replace(/\s*```/g, '');
         }
 
         cleanText = cleanText.trim();
 
-        const parsedData = JSON.parse(cleanText);
-        if (parsedData.acronyms && parsedData.acronyms.length > 0) {
-          acronymData = parsedData.acronyms[0];
+        // Try to find JSON in the response
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            const parsedData = JSON.parse(jsonMatch[0]);
+            if (parsedData.acronyms && parsedData.acronyms.length > 0) {
+              acronymData = parsedData.acronyms[0];
+            } else if (parsedData.acronym) {
+              acronymData = parsedData;
+            } else {
+              throw new Error('No acronym data found in response');
+            }
+          } catch (parseError) {
+            console.error('JSON Parse error:', parseError);
+            throw new Error('The AI response could not be parsed. Please try rephrasing your input.');
+          }
         } else {
-          acronymData = parsedData;
+          // No JSON found - AI returned plain text
+          throw new Error('The AI returned a text response instead of an acronym. Please try a more specific topic or concept.');
         }
       } else if (data.acronym) {
         acronymData = data;
       } else {
-        throw new Error('Invalid response format');
+        throw new Error('Invalid response format from API');
       }
 
       if (acronymData.error) {
@@ -176,9 +196,10 @@ const AcronymGenerator = () => {
 
       setGeneratedAcronym(transformedData);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating acronym:', error);
-      alert('Failed to generate acronym. Please try again.');
+      const errorMessage = error.message || 'Failed to generate acronym. Please try again with a different input.';
+      alert(errorMessage);
     } finally {
       setIsGenerating(false);
     }
