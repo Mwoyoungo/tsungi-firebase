@@ -8,26 +8,9 @@ import { SplashScreen } from './components/SplashScreen';
 import { ComingSoon } from './components/ComingSoon';
 import Auth from './pages/Auth';
 import AudioLearning from './pages/AudioLearning';
+import AcronymGenerator from './pages/AcronymGenerator';
 
 // Page components with ComingSoon
-const AcronymGenerator = () => (
-  <ComingSoon
-    title="Acronym Generator"
-    description="Create memorable acronyms to help you remember complex actuarial concepts and formulas. Perfect for exam preparation and quick recall during studies."
-    icon={
-      <svg className="icon-lg text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 21H15M12 17L12 21M12 3a6 6 0 0 1 6 6c0 3-2 5.5-2 8H8c0-2.5-2-5-2-8a6 6 0 0 1 6-6Z"/>
-      </svg>
-    }
-    features={[
-      "AI-powered acronym generation",
-      "Subject-specific suggestions",
-      "Personal acronym library",
-      "Difficulty-based categorization"
-    ]}
-    estimatedDate="Q1 2024"
-  />
-);
 
 const StudyBuddy = () => (
   <ComingSoon
