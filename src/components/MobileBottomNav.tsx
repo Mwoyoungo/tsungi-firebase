@@ -14,6 +14,11 @@ const mobileNavItems = [
     icon: 'lightbulb',
   },
   {
+    title: 'Chat',
+    href: '/chat',
+    icon: 'message',
+  },
+  {
     title: 'Study',
     href: '/study-buddy',
     icon: 'users',
@@ -22,6 +27,11 @@ const mobileNavItems = [
     title: 'Upload',
     href: '/upload',
     icon: 'upload',
+  },
+  {
+    title: 'Practice',
+    href: '/practice',
+    icon: 'book',
   },
   {
     title: 'Typing',
@@ -45,6 +55,11 @@ const getIcon = (iconName: string, isActive = false) => {
         <path d="M9 21H15M12 17L12 21M12 3a6 6 0 0 1 6 6c0 3-2 5.5-2 8H8c0-2.5-2-5-2-8a6 6 0 0 1 6-6Z"/>
       </svg>
     ),
+    message: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    ),
     users: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -57,6 +72,11 @@ const getIcon = (iconName: string, isActive = false) => {
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="7,10 12,5 17,10"/>
         <line x1="12" y1="5" x2="12" y2="15"/>
+      </svg>
+    ),
+    book: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
       </svg>
     ),
     keyboard: (

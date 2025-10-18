@@ -321,7 +321,7 @@ const AudioLearning = () => {
                 <path d="M21 12a9 9 0 11-6.219-8.56"/>
               </svg>
             </div>
-            <p className="text-muted-foreground">Loading audio files from Firebase...</p>
+            <p className="text-muted-foreground">Loading audio files...</p>
           </div>
         </div>
       </div>
