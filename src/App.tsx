@@ -9,6 +9,7 @@ import { ComingSoon } from './components/ComingSoon';
 import Auth from './pages/Auth';
 import AudioLearning from './pages/AudioLearning';
 import AcronymGenerator from './pages/AcronymGenerator';
+import Chat from './pages/Chat';
 
 // Page components with ComingSoon
 
@@ -162,6 +163,13 @@ const App = () => {
               <ProtectedRoute>
                 <AppLayout>
                   <StudyBuddy />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Chat />
                 </AppLayout>
               </ProtectedRoute>
             } />

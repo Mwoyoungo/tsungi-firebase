@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { getCurrentUser, onAuthStateChange, signOut } from '../firebase/auth.js';
+import { initializeCometChat, syncFirebaseUserToCometChat, logoutCometChatUser } from '../utils/cometchat';
 
 interface UserProfile {
   id: string;
@@ -40,6 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cometChatInitialized, setCometChatInitialized] = useState(false);
 
   const loadUserProfile = async (firebaseUser: any) => {
     try {
@@ -68,6 +70,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleSignOut = async () => {
     try {
+      // Logout from CometChat first
+      await logoutCometChatUser();
+      // Then logout from Firebase
       await signOut();
       setUser(null);
       setProfile(null);
@@ -76,14 +81,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Initialize CometChat on app load
+  useEffect(() => {
+    const initChat = async () => {
+      try {
+        await initializeCometChat();
+        setCometChatInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize CometChat:', error);
+      }
+    };
+
+    initChat();
+  }, []);
+
+  // Sync Firebase Auth with CometChat
   useEffect(() => {
     // Listen for auth changes - this handles both initial load and subsequent changes
-    const unsubscribe = onAuthStateChange((firebaseUser) => {
+    const unsubscribe = onAuthStateChange(async (firebaseUser) => {
       console.log('Auth state changed:', firebaseUser?.email || 'no user');
       setUser(firebaseUser);
 
       if (firebaseUser) {
-        loadUserProfile(firebaseUser);
+        await loadUserProfile(firebaseUser);
+
+        // Sync user to CometChat after initialization
+        if (cometChatInitialized) {
+          try {
+            await syncFirebaseUserToCometChat({
+              uid: firebaseUser.uid,
+              displayName: firebaseUser.displayName
+            });
+          } catch (error) {
+            console.error('Failed to sync user to CometChat:', error);
+          }
+        }
       } else {
         setProfile(null);
       }
@@ -94,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [cometChatInitialized]);
 
   const value = {
     user,

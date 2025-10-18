@@ -17,6 +17,12 @@ const sidebarItems = [
     description: 'Memory Aids'
   },
   {
+    title: 'Chat',
+    href: '/chat',
+    icon: 'message',
+    description: 'Connect & Collaborate'
+  },
+  {
     title: 'Study Buddy',
     href: '/study-buddy',
     icon: 'users',
@@ -53,6 +59,11 @@ const getIcon = (iconName: string) => {
     lightbulb: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="icon-md">
         <path d="M9 21H15M12 17L12 21M12 3a6 6 0 0 1 6 6c0 3-2 5.5-2 8H8c0-2.5-2-5-2-8a6 6 0 0 1 6-6Z"/>
+      </svg>
+    ),
+    message: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="icon-md">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
     ),
     users: (
