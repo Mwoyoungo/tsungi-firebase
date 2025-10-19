@@ -96,31 +96,33 @@ const AcronymGenerator = () => {
   const [filteredCards, setFilteredCards] = useState(flashcards);
   const [selectedChapter, setSelectedChapter] = useState('All Chapters');
   const [masteredCards, setMasteredCards] = useState<Set<number>>(new Set());
-  const [confidenceRatings, setConfidenceRatings] = useState<Map<number, number>>(new Map());
+  // Track dual ratings: Map<cardId, {flip2: number, flip3: number}>
+  const [cardRatings, setCardRatings] = useState<Map<number, {flip2: number, flip3: number}>>(new Map());
   const [showMastered, setShowMastered] = useState(true);
   const [showCA1Library, setShowCA1Library] = useState(false);
 
   // Load saved data from localStorage
   useEffect(() => {
     const savedMastered = localStorage.getItem('masteredCards');
-    const savedConfidence = localStorage.getItem('confidenceRatings');
+    const savedRatings = localStorage.getItem('cardRatings');
 
     if (savedMastered) {
       setMasteredCards(new Set(JSON.parse(savedMastered)));
     }
-    if (savedConfidence) {
-      setConfidenceRatings(new Map(JSON.parse(savedConfidence)));
+    if (savedRatings) {
+      const ratings = JSON.parse(savedRatings);
+      setCardRatings(new Map(ratings.map(([id, val]: [number, any]) => [id, val])));
     }
   }, []);
 
-  // Save to localStorage whenever mastered cards or confidence changes
+  // Save to localStorage whenever mastered cards or ratings change
   useEffect(() => {
     localStorage.setItem('masteredCards', JSON.stringify(Array.from(masteredCards)));
   }, [masteredCards]);
 
   useEffect(() => {
-    localStorage.setItem('confidenceRatings', JSON.stringify(Array.from(confidenceRatings.entries())));
-  }, [confidenceRatings]);
+    localStorage.setItem('cardRatings', JSON.stringify(Array.from(cardRatings.entries())));
+  }, [cardRatings]);
 
   // Filter cards based on chapter and mastered status
   useEffect(() => {
@@ -172,12 +174,28 @@ const AcronymGenerator = () => {
     setMasteredCards(newMastered);
   };
 
-  const setConfidence = (rating: number) => {
+  // Handle rating changes from flashcard component
+  const handleRatingChange = (flip: 2 | 3, rating: number) => {
     if (!currentCard) return;
 
-    const newRatings = new Map(confidenceRatings);
-    newRatings.set(currentCard.id, rating);
-    setConfidenceRatings(newRatings);
+    const newRatings = new Map(cardRatings);
+    const currentRatings = newRatings.get(currentCard.id) || { flip2: 0, flip3: 0 };
+
+    if (flip === 2) {
+      currentRatings.flip2 = rating;
+    } else {
+      currentRatings.flip3 = rating;
+    }
+
+    newRatings.set(currentCard.id, currentRatings);
+    setCardRatings(newRatings);
+
+    // Auto-master if both flip2 and flip3 are 5 stars
+    if (currentRatings.flip2 === 5 && currentRatings.flip3 === 5) {
+      const newMastered = new Set(masteredCards);
+      newMastered.add(currentCard.id);
+      setMasteredCards(newMastered);
+    }
   };
 
   const progress = (currentIndex + 1) / filteredCards.length * 100;
@@ -248,17 +266,6 @@ const AcronymGenerator = () => {
           {showMastered ? <Eye className="icon-sm" /> : <EyeOff className="icon-sm" />}
           {showMastered ? 'Hide Mastered' : 'Show Mastered'}
         </button>
-
-        <button
-          onClick={() => setShowCA1Library(!showCA1Library)}
-          className="action-btn"
-        >
-          <svg className="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-          </svg>
-          {showCA1Library ? 'Hide' : 'View'} Audio Library
-        </button>
       </div>
 
       {/* Flashcard Display */}
@@ -269,19 +276,9 @@ const AcronymGenerator = () => {
             back={currentCard.acronym}
             color={currentCard.color}
             chapter={currentCard.chapter}
+            breakdown={currentCard.breakdown}
+            onRatingChange={handleRatingChange}
           />
-
-          {/* Confidence Rating */}
-          <div className="confidence-rating">
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <Star
-                key={rating}
-                className={`confidence-star ${confidenceRatings.get(currentCard.id) >= rating ? 'filled' : ''}`}
-                fill={confidenceRatings.get(currentCard.id) >= rating ? 'currentColor' : 'none'}
-                onClick={() => setConfidence(rating)}
-              />
-            ))}
-          </div>
 
           {/* Navigation Controls */}
           <div className="flashcard-controls">
