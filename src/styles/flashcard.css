@@ -144,6 +144,22 @@
   margin-top: 24px;
 }
 
+.nav-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-hint {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
 .flashcard-nav-btn {
   display: flex;
   align-items: center;
@@ -287,6 +303,10 @@
   .flashcard-nav-btn svg {
     width: 20px;
     height: 20px;
+  }
+
+  .nav-hint {
+    font-size: 10px;
   }
 
   .confidence-star {

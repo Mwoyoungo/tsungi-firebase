@@ -196,6 +196,16 @@ const AcronymGenerator = () => {
       newMastered.add(currentCard.id);
       setMasteredCards(newMastered);
     }
+
+    // Auto-advance to next card if both ratings have been given
+    if (currentRatings.flip2 > 0 && currentRatings.flip3 > 0) {
+      // Use setTimeout to allow the rating animation to complete
+      setTimeout(() => {
+        if (currentIndex < filteredCards.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+        }
+      }, 800); // 800ms delay for smooth transition
+    }
   };
 
   const progress = (currentIndex + 1) / filteredCards.length * 100;
@@ -282,25 +292,31 @@ const AcronymGenerator = () => {
 
           {/* Navigation Controls */}
           <div className="flashcard-controls">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="flashcard-nav-btn"
-            >
-              <ChevronLeft />
-            </button>
+            <div className="nav-btn-container">
+              <button
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                className="flashcard-nav-btn"
+              >
+                <ChevronLeft />
+              </button>
+              <span className="nav-hint">Previous</span>
+            </div>
 
             <div className="card-counter">
               {currentIndex + 1} / {filteredCards.length}
             </div>
 
-            <button
-              onClick={handleNext}
-              disabled={currentIndex === filteredCards.length - 1}
-              className="flashcard-nav-btn"
-            >
-              <ChevronRight />
-            </button>
+            <div className="nav-btn-container">
+              <button
+                onClick={handleNext}
+                disabled={currentIndex === filteredCards.length - 1}
+                className="flashcard-nav-btn"
+              >
+                <ChevronRight />
+              </button>
+              <span className="nav-hint">Next</span>
+            </div>
           </div>
         </div>
       ) : (
