@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Shuffle, Star, Eye, EyeOff, List, CreditCard, X } from 'lucide-react';
 import Flashcard from '../components/Flashcard';
 import { flashcards, chapters } from '../data/flashcards';
+import { useAuth } from '../contexts/AuthContext';
+import { saveCardRatings, saveMasteredCards, subscribeToFlashcardData } from '../firebase/flashcards.js';
 import '../styles/flashcard.css';
 
 // CA1 Acronym Library Data
@@ -91,6 +93,8 @@ interface Letter {
 }
 
 const AcronymGenerator = () => {
+  const { user } = useAuth();
+
   // Flashcard state management
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filteredCards, setFilteredCards] = useState(flashcards);
@@ -103,28 +107,51 @@ const AcronymGenerator = () => {
   const [showMasteredModal, setShowMasteredModal] = useState(false);
   const [viewMode, setViewMode] = useState<'flashcard' | 'list'>('flashcard');
 
-  // Load saved data from localStorage
+  // Subscribe to Firestore updates when user is logged in
   useEffect(() => {
-    const savedMastered = localStorage.getItem('masteredCards');
-    const savedRatings = localStorage.getItem('cardRatings');
+    if (!user) {
+      // If no user, load from localStorage as fallback
+      const savedMastered = localStorage.getItem('masteredCards');
+      const savedRatings = localStorage.getItem('cardRatings');
 
-    if (savedMastered) {
-      setMasteredCards(new Set(JSON.parse(savedMastered)));
+      if (savedMastered) {
+        setMasteredCards(new Set(JSON.parse(savedMastered)));
+      }
+      if (savedRatings) {
+        const ratings = JSON.parse(savedRatings);
+        setCardRatings(new Map(ratings.map(([id, val]: [number, any]) => [id, val])));
+      }
+      return;
     }
-    if (savedRatings) {
-      const ratings = JSON.parse(savedRatings);
-      setCardRatings(new Map(ratings.map(([id, val]: [number, any]) => [id, val])));
+
+    // Subscribe to real-time Firestore updates
+    const unsubscribe = subscribeToFlashcardData(user.uid, (data) => {
+      setCardRatings(data.ratings);
+      setMasteredCards(data.mastered);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Save to Firestore whenever mastered cards change (if user is logged in)
+  useEffect(() => {
+    if (user) {
+      saveMasteredCards(user.uid, masteredCards);
+    } else {
+      // Fallback to localStorage if not logged in
+      localStorage.setItem('masteredCards', JSON.stringify(Array.from(masteredCards)));
     }
-  }, []);
+  }, [masteredCards, user]);
 
-  // Save to localStorage whenever mastered cards or ratings change
+  // Save to Firestore whenever ratings change (if user is logged in)
   useEffect(() => {
-    localStorage.setItem('masteredCards', JSON.stringify(Array.from(masteredCards)));
-  }, [masteredCards]);
-
-  useEffect(() => {
-    localStorage.setItem('cardRatings', JSON.stringify(Array.from(cardRatings.entries())));
-  }, [cardRatings]);
+    if (user) {
+      saveCardRatings(user.uid, cardRatings);
+    } else {
+      // Fallback to localStorage if not logged in
+      localStorage.setItem('cardRatings', JSON.stringify(Array.from(cardRatings.entries())));
+    }
+  }, [cardRatings, user]);
 
   // Filter cards based on chapter and mastered status
   useEffect(() => {
@@ -373,13 +400,47 @@ const AcronymGenerator = () => {
             <div key={card.id} className="card">
               <div className="card-content p-4 md:p-6">
                 {/* Card Header */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="badge badge-secondary text-xs">{card.chapter}</span>
-                  {masteredCards.has(card.id) && (
-                    <span className="badge bg-primary text-white text-xs flex items-center gap-1">
-                      <Star className="w-3 h-3" fill="currentColor" />
-                      Mastered
-                    </span>
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="badge badge-secondary text-xs">{card.chapter}</span>
+                    {masteredCards.has(card.id) && (
+                      <span className="badge bg-primary text-white text-xs flex items-center gap-1">
+                        <Star className="w-3 h-3" fill="currentColor" />
+                        Mastered
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Ratings Display */}
+                  {cardRatings.has(card.id) && (
+                    <div className="flex flex-col md:flex-row gap-2 md:gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="font-semibold">Flip 2:</span>
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className="w-4 h-4"
+                              fill={cardRatings.get(card.id)!.flip2 >= star ? '#FFD700' : 'none'}
+                              stroke={cardRatings.get(card.id)!.flip2 >= star ? '#FFA500' : 'currentColor'}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="font-semibold">Flip 3:</span>
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className="w-4 h-4"
+                              fill={cardRatings.get(card.id)!.flip3 >= star ? '#FFD700' : 'none'}
+                              stroke={cardRatings.get(card.id)!.flip3 >= star ? '#FFA500' : 'currentColor'}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
