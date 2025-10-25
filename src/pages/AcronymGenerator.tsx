@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Shuffle, Star, Eye, EyeOff, List, CreditCard, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shuffle, Star, Eye, EyeOff, List, CreditCard, X } from 'lucide-react';
 import Flashcard from '../components/Flashcard';
 import { flashcards, chapters } from '../data/flashcards';
 import '../styles/flashcard.css';
@@ -102,7 +102,6 @@ const AcronymGenerator = () => {
   const [showCA1Library, setShowCA1Library] = useState(false);
   const [showMasteredModal, setShowMasteredModal] = useState(false);
   const [viewMode, setViewMode] = useState<'flashcard' | 'list'>('flashcard');
-  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -181,16 +180,6 @@ const AcronymGenerator = () => {
     const newMastered = new Set(masteredCards);
     newMastered.delete(cardId);
     setMasteredCards(newMastered);
-  };
-
-  const toggleCardPreview = (cardId: number) => {
-    const newExpanded = new Set(expandedCards);
-    if (newExpanded.has(cardId)) {
-      newExpanded.delete(cardId);
-    } else {
-      newExpanded.add(cardId);
-    }
-    setExpandedCards(newExpanded);
   };
 
   // Handle rating changes from flashcard component
@@ -377,84 +366,59 @@ const AcronymGenerator = () => {
         </div>
       ) : null}
 
-      {/* List View */}
+      {/* List View - Continuous Scrolling with All Cards Expanded */}
       {viewMode === 'list' && (
         <div className="space-y-4">
           {filteredCards.map((card) => (
             <div key={card.id} className="card">
               <div className="card-content p-4 md:p-6">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="badge badge-secondary text-xs">{card.chapter}</span>
-                      {masteredCards.has(card.id) && (
-                        <span className="badge bg-primary text-white text-xs flex items-center gap-1">
-                          <Star className="w-3 h-3" fill="currentColor" />
-                          Mastered
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">{card.topic}</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-black text-primary">{card.acronym}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleCardPreview(card.id)}
-                    className="action-btn flex items-center gap-2"
-                  >
-                    {expandedCards.has(card.id) ? (
-                      <>
-                        <ChevronUp className="icon-sm" />
-                        Hide
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="icon-sm" />
-                        Preview
-                      </>
-                    )}
-                  </button>
+                {/* Card Header */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="badge badge-secondary text-xs">{card.chapter}</span>
+                  {masteredCards.has(card.id) && (
+                    <span className="badge bg-primary text-white text-xs flex items-center gap-1">
+                      <Star className="w-3 h-3" fill="currentColor" />
+                      Mastered
+                    </span>
+                  )}
                 </div>
 
-                {/* 3-Column Preview */}
-                {expandedCards.has(card.id) && (
-                  <div className="mt-4 overflow-x-auto">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="bg-muted">
-                          <th className="border border-border p-3 text-left font-bold">Question/Topic</th>
-                          <th className="border border-border p-3 text-left font-bold">Acronym</th>
-                          <th className="border border-border p-3 text-left font-bold">Breakdown</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="border border-border p-3 align-top">
-                            <p className="text-sm">{card.topic}</p>
-                          </td>
-                          <td className="border border-border p-3 align-top">
-                            <span className="font-black text-lg text-primary">{card.acronym}</span>
-                          </td>
-                          <td className="border border-border p-3 align-top">
-                            {card.breakdown && card.breakdown.length > 0 ? (
-                              <div className="space-y-2">
-                                {card.breakdown.map((item, index) => (
-                                  <div key={index} className="flex items-start gap-2">
-                                    <span className="font-bold text-primary min-w-[24px]">{item.letter}</span>
-                                    <span className="text-sm">{item.term}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-sm text-muted-foreground">Breakdown not available</span>
-                            )}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {/* 3-Column Table - Always Visible */}
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted">
+                        <th className="border border-border p-3 text-left font-bold">Question/Topic</th>
+                        <th className="border border-border p-3 text-left font-bold">Acronym</th>
+                        <th className="border border-border p-3 text-left font-bold">Breakdown</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-border p-3 align-top">
+                          <p className="text-sm">{card.topic}</p>
+                        </td>
+                        <td className="border border-border p-3 align-top">
+                          <span className="font-black text-lg text-primary">{card.acronym}</span>
+                        </td>
+                        <td className="border border-border p-3 align-top">
+                          {card.breakdown && card.breakdown.length > 0 ? (
+                            <div className="space-y-2">
+                              {card.breakdown.map((item, index) => (
+                                <div key={index} className="flex items-start gap-2">
+                                  <span className="font-bold text-primary min-w-[24px]">{item.letter}</span>
+                                  <span className="text-sm">{item.term}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Breakdown not available</span>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           ))}
