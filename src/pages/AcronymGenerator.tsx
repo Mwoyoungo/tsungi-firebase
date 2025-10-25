@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Shuffle, Star, Eye, EyeOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shuffle, Star, Eye, EyeOff, List, CreditCard, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Flashcard from '../components/Flashcard';
 import { flashcards, chapters } from '../data/flashcards';
 import '../styles/flashcard.css';
@@ -100,6 +100,9 @@ const AcronymGenerator = () => {
   const [cardRatings, setCardRatings] = useState<Map<number, {flip2: number, flip3: number}>>(new Map());
   const [showMastered, setShowMastered] = useState(true);
   const [showCA1Library, setShowCA1Library] = useState(false);
+  const [showMasteredModal, setShowMasteredModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'flashcard' | 'list'>('flashcard');
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -174,6 +177,22 @@ const AcronymGenerator = () => {
     setMasteredCards(newMastered);
   };
 
+  const removeMasteredCard = (cardId: number) => {
+    const newMastered = new Set(masteredCards);
+    newMastered.delete(cardId);
+    setMasteredCards(newMastered);
+  };
+
+  const toggleCardPreview = (cardId: number) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(cardId)) {
+      newExpanded.delete(cardId);
+    } else {
+      newExpanded.add(cardId);
+    }
+    setExpandedCards(newExpanded);
+  };
+
   // Handle rating changes from flashcard component
   const handleRatingChange = (flip: 2 | 3, rating: number) => {
     if (!currentCard) return;
@@ -227,7 +246,10 @@ const AcronymGenerator = () => {
             </svg>
             <span className="font-medium">{flashcards.length} Total Flashcards</span>
           </div>
-          <div className="badge badge-secondary px-4 md:px-6 py-2 md:py-3 flex items-center gap-2">
+          <div
+            className="badge badge-secondary px-4 md:px-6 py-2 md:py-3 flex items-center gap-2 cursor-pointer hover:bg-primary hover:text-white transition-colors"
+            onClick={() => setShowMasteredModal(true)}
+          >
             <Star className="icon-sm" fill="currentColor" />
             <span className="font-medium">{masteredCards.size} Mastered</span>
           </div>
@@ -240,6 +262,24 @@ const AcronymGenerator = () => {
           <div className="progress-bar" style={{ width: `${progress}%` }} />
         </div>
       )}
+
+      {/* View Mode Toggle */}
+      <div className="flex justify-center gap-2 mb-4">
+        <button
+          onClick={() => setViewMode('flashcard')}
+          className={`action-btn ${viewMode === 'flashcard' ? 'bg-primary text-white border-primary' : ''}`}
+        >
+          <CreditCard className="icon-sm" />
+          Flashcard View
+        </button>
+        <button
+          onClick={() => setViewMode('list')}
+          className={`action-btn ${viewMode === 'list' ? 'bg-primary text-white border-primary' : ''}`}
+        >
+          <List className="icon-sm" />
+          List View
+        </button>
+      </div>
 
       {/* Filters and Actions */}
       <div className="flashcard-filters">
@@ -261,13 +301,15 @@ const AcronymGenerator = () => {
           Shuffle
         </button>
 
-        <button onClick={toggleMastered} className="action-btn">
-          <Star
-            className="icon-sm"
-            fill={currentCard && masteredCards.has(currentCard.id) ? 'currentColor' : 'none'}
-          />
-          {currentCard && masteredCards.has(currentCard.id) ? 'Unmark' : 'Mark as Mastered'}
-        </button>
+        {viewMode === 'flashcard' && (
+          <button onClick={toggleMastered} className="action-btn">
+            <Star
+              className="icon-sm"
+              fill={currentCard && masteredCards.has(currentCard.id) ? 'currentColor' : 'none'}
+            />
+            {currentCard && masteredCards.has(currentCard.id) ? 'Unmark' : 'Mark as Mastered'}
+          </button>
+        )}
 
         <button
           onClick={() => setShowMastered(!showMastered)}
@@ -278,8 +320,8 @@ const AcronymGenerator = () => {
         </button>
       </div>
 
-      {/* Flashcard Display */}
-      {filteredCards.length > 0 && currentCard ? (
+      {/* Flashcard Display - Flashcard View */}
+      {viewMode === 'flashcard' && filteredCards.length > 0 && currentCard ? (
         <div className="space-y-6">
           <Flashcard
             front={currentCard.topic}
@@ -319,7 +361,7 @@ const AcronymGenerator = () => {
             </div>
           </div>
         </div>
-      ) : (
+      ) : viewMode === 'flashcard' ? (
         <div className="card">
           <div className="card-content p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -332,6 +374,90 @@ const AcronymGenerator = () => {
                 : "Try changing your filter settings."}
             </p>
           </div>
+        </div>
+      ) : null}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="space-y-4">
+          {filteredCards.map((card) => (
+            <div key={card.id} className="card">
+              <div className="card-content p-4 md:p-6">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="badge badge-secondary text-xs">{card.chapter}</span>
+                      {masteredCards.has(card.id) && (
+                        <span className="badge bg-primary text-white text-xs flex items-center gap-1">
+                          <Star className="w-3 h-3" fill="currentColor" />
+                          Mastered
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">{card.topic}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-black text-primary">{card.acronym}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleCardPreview(card.id)}
+                    className="action-btn flex items-center gap-2"
+                  >
+                    {expandedCards.has(card.id) ? (
+                      <>
+                        <ChevronUp className="icon-sm" />
+                        Hide
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="icon-sm" />
+                        Preview
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* 3-Column Preview */}
+                {expandedCards.has(card.id) && (
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="border border-border p-3 text-left font-bold">Question/Topic</th>
+                          <th className="border border-border p-3 text-left font-bold">Acronym</th>
+                          <th className="border border-border p-3 text-left font-bold">Breakdown</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-border p-3 align-top">
+                            <p className="text-sm">{card.topic}</p>
+                          </td>
+                          <td className="border border-border p-3 align-top">
+                            <span className="font-black text-lg text-primary">{card.acronym}</span>
+                          </td>
+                          <td className="border border-border p-3 align-top">
+                            {card.breakdown && card.breakdown.length > 0 ? (
+                              <div className="space-y-2">
+                                {card.breakdown.map((item, index) => (
+                                  <div key={index} className="flex items-start gap-2">
+                                    <span className="font-bold text-primary min-w-[24px]">{item.letter}</span>
+                                    <span className="text-sm">{item.term}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">Breakdown not available</span>
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -389,6 +515,59 @@ const AcronymGenerator = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mastered Cards Modal */}
+      {showMasteredModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowMasteredModal(false)}>
+          <div className="bg-card rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Star className="w-6 h-6 text-primary" fill="currentColor" />
+                <h2 className="text-2xl font-bold">Mastered Cards ({masteredCards.size})</h2>
+              </div>
+              <button
+                onClick={() => setShowMasteredModal(false)}
+                className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {masteredCards.size === 0 ? (
+                <div className="text-center py-12">
+                  <Star className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-bold mb-2">No mastered cards yet</h3>
+                  <p className="text-muted-foreground">Cards you mark as mastered will appear here.</p>
+                </div>
+              ) : (
+                flashcards
+                  .filter(card => masteredCards.has(card.id))
+                  .map(card => (
+                    <div key={card.id} className="card">
+                      <div className="card-content p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <span className="badge badge-secondary text-xs mb-2">{card.chapter}</span>
+                            <h3 className="font-bold text-lg mb-2">{card.topic}</h3>
+                            <span className="text-xl font-black text-primary">{card.acronym}</span>
+                          </div>
+                          <button
+                            onClick={() => removeMasteredCard(card.id)}
+                            className="action-btn text-sm flex items-center gap-2"
+                          >
+                            <X className="w-4 h-4" />
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </div>
         </div>
